@@ -52,7 +52,7 @@ class CardValidatorService
                 return $transaction->getAmount() % 10 === 0 ? Transaction::APPROVED : Transaction::DECLINED;
 
             case 'approved_in_cad':
-                return $transaction->getAmount() === 'CAD' ? Transaction::APPROVED : Transaction::DECLINED;
+                return $transaction->currency === 'CAD' ? Transaction::APPROVED : Transaction::DECLINED;
 
             case 'declined_if_duplicate_transaction_in_10_minutes':
                 return $transaction->isDuplicateTransaction() ? Transaction::DECLINED : Transaction::APPROVED;
@@ -70,7 +70,7 @@ class CardValidatorService
                 return isset($metadata['test']) ? 'declined' : 'approved';
 
             case 'nsf_if_amount_between_100_and_200':
-                return ($transaction->getAmount() >= 100 && $transaction->getAmount() <= 200) ? Transaction::DECLINED : Transaction::APPROVED;
+                return ($transaction->getAmount() >= 100 && $transaction->getAmount() <= 200) ? Transaction::NSF : Transaction::APPROVED;
 
             case 'approved_if_amount_is_in_even_numbers':
                 return $transaction->getAmount() % 2 === 0 ? Transaction::APPROVED : Transaction::DECLINED;
@@ -91,16 +91,19 @@ class CardValidatorService
                 return $transaction->currency === 'USD' ? Transaction::DECLINED : Transaction::APPROVED;
 
             case 'approved_if_meta_contains_valid_key':
-                return isset($metadata['valid']) ? Transaction::APPROVED : Transaction::DECLINED;
+                return isset($transaction->metadata['valid']) ? Transaction::APPROVED : Transaction::DECLINED;
 
             case 'declined_if_transaction_after_8pm':
-                return now()->hour >= 20 ? Transaction::DECLINED : Transaction::APPROVED;
+                return now()->parse($transaction->created_at)->hour >= 20 ? Transaction::DECLINED : Transaction::APPROVED;
 
             case 'approved_only_if_currency_in_GBP_AUD':
                 return in_array($transaction->currency, ['GBP', 'AUD']) ? Transaction::APPROVED : Transaction::DECLINED;
 
             case 'declined_if_email_contains_test':
                 return str_contains($transaction->customer_email, 'test') ? Transaction::DECLINED : Transaction::APPROVED;
+
+            case 'declined_if_divisible_by_3':
+                return $transaction->getAmount() % 3 === 0 ? Transaction::DECLINED : Transaction::APPROVED;
 
             case 'always_declined':
             default:
