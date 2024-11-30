@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('card_number');
             $table->integer('amount');
             $table->string('currency');
-            $table->string('email');
+            $table->string('customer_email');
             $table->string('status');
-            $table->json('metadata');
+            $table->json('metadata')->nullable();
 
             $table->timestamps();
         });
