@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreateTransactionRequest extends FormRequest
 {
@@ -25,7 +26,7 @@ class CreateTransactionRequest extends FormRequest
         return [
             'card_number' => ['required', 'string'],
             'amount' => ['required', 'numeric'],
-            'currency' => ['required', 'string'],
+            'currency' => ['required', 'string', Rule::in(config('currencies'))],
             'customer_email' => ['required', 'string'],
             'metadata' => ['nullable', 'array'],
         ];
