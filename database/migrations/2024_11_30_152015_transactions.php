@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('status');
             $table->json('metadata')->nullable();
 
+            $table->index(['currency', 'amount', 'created_at']);
+
             $table->timestamps();
         });
     }
