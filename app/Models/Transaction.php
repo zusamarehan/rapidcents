@@ -24,4 +24,9 @@ class Transaction extends Model
         'status',
         'metadata'
     ];
+
+    public function getAmount() : float
+    {
+        return $this->amount / 100;
+    }
 }
