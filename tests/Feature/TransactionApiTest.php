@@ -148,7 +148,7 @@ test('it declines if duplicate transactions exists', function () {
     $transaction->card_number = '6789012345678901';
 
     // Validate and check that the transaction is approved
-    expect($this->cardValidatorService->validate($transaction))->toBe(Transaction::DECLINED);
+    expect($this->cardValidatorService->validate($transaction, '6789012345678901'))->toBe(Transaction::DECLINED);
 });
 
 

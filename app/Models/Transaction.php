@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class Transaction extends Model
 {
@@ -28,18 +29,43 @@ class Transaction extends Model
         'metadata'
     ];
 
+    /**
+     * Mutator to handle encryption when setting card
+     */
+    public function setCardNumberAttribute($value): void
+    {
+        $this->attributes['card_number'] = Crypt::encryptString($value);
+    }
+
+    /**
+     * Accessor to handle decryption when getting email
+     */
+    public function getCardNumberAttribute(): string
+    {
+        return Crypt::decryptString($this->attributes['card_number']);
+    }
+
     public function getAmount() : float
     {
         return $this->amount / 100;
     }
 
-    public function isDuplicateTransaction(): bool
+    public function isDuplicateTransaction(string $cardNumber): bool
     {
-        return Transaction::query()
+        $narrowFilter = Transaction::query()
             ->where('currency', $this->currency)
             ->where('amount', $this->amount)
-            ->where('card_number', $this->card_number)
             ->where('created_at', '>' , now()->subMinutes(10))
-            ->exists();
+            ->get();
+
+        $exists = $narrowFilter->first(function ($record) use ($cardNumber) {
+            try {
+                return $record->card_number === $cardNumber;
+            } catch (\Exception $e) {
+                return false;
+            }
+        });
+
+        return (bool) $exists;
     }
 }

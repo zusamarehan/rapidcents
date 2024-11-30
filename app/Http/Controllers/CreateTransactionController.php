@@ -17,7 +17,7 @@ class CreateTransactionController extends Controller
         $transaction->transaction_id = Str::uuid();
         $transaction->fill($createTransactionRequest->validated());
 
-        $transaction->status = $cardValidatorService->validate($transaction);
+        $transaction->status = $cardValidatorService->validate($transaction, $createTransactionRequest->validated()['card_number']);
 
         $transaction->save();
 

@@ -32,7 +32,7 @@ class CardValidatorService
         '9900112233445566' => 'declined_if_email_contains_test',
     ];
 
-    public function validate(Transaction $transaction): string
+    public function validate(Transaction $transaction, ?string $cardNumber = null): string
     {
         if (!isset($this->cardRules[$transaction->card_number])) {
             return Transaction::DECLINED;
@@ -55,7 +55,7 @@ class CardValidatorService
                 return $transaction->currency === 'CAD' ? Transaction::APPROVED : Transaction::DECLINED;
 
             case 'declined_if_duplicate_transaction_in_10_minutes':
-                return $transaction->isDuplicateTransaction() ? Transaction::DECLINED : Transaction::APPROVED;
+                return $transaction->isDuplicateTransaction($cardNumber) ? Transaction::DECLINED : Transaction::APPROVED;
 
             case 'declined_if_missing_metadata':
                 return !is_null($transaction->metadata) ? Transaction::APPROVED : Transaction::DECLINED;
